@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using CurrencyExchangeApp.Repositories;
+using CurrencyExchangeApp.Models.ViewModels;
 
 namespace CurrencyExchangeApp.Controllers
 {
@@ -26,6 +26,34 @@ namespace CurrencyExchangeApp.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     "Error retrieving data from the database");
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Create(CreateCurrencyViewModel createCurrencyViewModel)
+        {
+            try
+            {
+                await _currencyRepository.Create(createCurrencyViewModel);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost("Rate")]
+        public ActionResult CurrencyRate(CurrencyRateViewModel currencyRateViewModel)
+        {
+            try
+            {
+                var result = _currencyRepository.GetCurrencyRate(currencyRateViewModel);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
     }

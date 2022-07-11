@@ -1,10 +1,12 @@
 ﻿using CurrencyExchangeApp.Models;
+using CurrencyExchangeApp.Models.ViewModels;
 
 namespace CurrencyExchangeApp.Repositories
 {
     public interface ICurrencyRepository
     {
         Task<IEnumerable<Currency>> GetAll();
-        Task Create(Currency currency);
+        Task Create(CreateCurrencyViewModel currency);
+        CurrencyRateResultViewModel GetCurrencyRate(CurrencyRateViewModel currencyRateViewModel);
     }
 }
