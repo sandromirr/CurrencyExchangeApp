@@ -9,6 +9,7 @@ namespace CurrencyExchangeApp.Database
 
         public DbSet<Currency> Currency { get; set; }
         public DbSet<CurrencyRate> CurrencyRate { get; set; }
+        public DbSet<Account> Account { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) { }
     }

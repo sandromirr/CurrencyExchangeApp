@@ -43,7 +43,7 @@ namespace CurrencyExchangeApp.Controllers
             }
         }
 
-        [HttpPost("Rate")]
+        [HttpPost("Rate", Name = nameof(CurrencyRate))]
         public ActionResult CurrencyRate(CurrencyRateViewModel currencyRateViewModel)
         {
             try
@@ -55,6 +55,12 @@ namespace CurrencyExchangeApp.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
+        }
+
+        [HttpPost("Exchange")]
+        public IActionResult Exchange()
+        {
+            return NoContent();
         }
     }
 }
