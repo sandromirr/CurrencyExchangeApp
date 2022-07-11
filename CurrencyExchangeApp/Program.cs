@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using CurrencyExchangeApp.Database;
+using CurrencyExchangeApp.Repositories;
+
 namespace CurrencyExchangeApp
 {
     public class Program
@@ -8,6 +12,12 @@ namespace CurrencyExchangeApp
 
             // Add services to the container.
 
+            builder.Services.AddDbContext<CurrencyExchangeDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("Local")));
+
+            builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
+
+           
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -25,7 +35,6 @@ namespace CurrencyExchangeApp
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
