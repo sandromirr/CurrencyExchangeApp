@@ -31,3 +31,23 @@ insert into CurrencyRate(CurrencyId,BuyRate,SoldRate) values
 (4,3.33,3.49)
 
 select * from CurrencyRate
+
+create table Account
+(
+	Id int not null primary key identity(1,1),
+	PersonalNumber nvarchar(13) not null,
+	[Name] nvarchar(50) not null,
+	[Surname] nvarchar(50) not null,
+	[RecommenderNumber] nvarchar(13) not null
+)
+
+insert into Account(PersonalNumber, [Name], [Surname], [RecommenderNumber]) values
+('001',N'Sandro','Mirianashvili','002')
+
+create table CurrencyExchange(
+	Id int primary key identity(1,1),
+	AccountId int,
+	CurrencyFrom int not null,
+	CurrencyTo int not null,
+	Amount decimal(7,2) not null
+)

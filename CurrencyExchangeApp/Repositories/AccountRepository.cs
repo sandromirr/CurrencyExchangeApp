@@ -29,6 +29,7 @@ namespace CurrencyExchangeApp.Repositories
                 PersonalNumber = createAccountViewModel.PersonalNumber,
                 RecommenderNumber = createAccountViewModel.RecommenderNumber
             };
+            
             await _dbContext.Account.AddAsync(account);
             await _dbContext.SaveChangesAsync();
         }

@@ -57,10 +57,18 @@ namespace CurrencyExchangeApp.Controllers
             }
         }
 
-        [HttpPost("Exchange")]
-        public IActionResult Exchange()
+        [HttpPost("Exchange",Name = nameof(Exchange))]
+        public async Task<IActionResult> Exchange([FromBody] CurrencyExchangeViewModel currencyExchangeViewModel)
         {
-            return NoContent();
+            try
+            {
+                var result = await _currencyRepository.ExchangeCurrency(currencyExchangeViewModel);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
     }
 }

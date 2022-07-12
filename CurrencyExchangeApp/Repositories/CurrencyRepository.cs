@@ -34,6 +34,47 @@ namespace CurrencyExchangeApp.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<CurrencyExchangeResultViewModel> ExchangeCurrency(CurrencyExchangeViewModel currencyExchangeViewModel)
+        {
+            const decimal MaxExchangeAmountUnRegisteredUser = 3000m;
+
+            var rateModel = new CurrencyRateViewModel()
+            {
+                CurrencyFromId = currencyExchangeViewModel.CurrencyFromId,
+                CurrencyToId = currencyExchangeViewModel.CurrencyToId
+            };
+            var currencyRate = GetCurrencyRate(rateModel).Rate;
+
+            var currencyFrom = _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyFromId).First();
+            var currencyTo = _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyToId).First();
+
+            decimal amount = ConvertCurrency(currencyFrom, currencyTo, currencyRate, currencyExchangeViewModel.Amount);
+
+            if (amount > MaxExchangeAmountUnRegisteredUser)
+            {
+                throw new Exception($"Exchange limit exceeded {MaxExchangeAmountUnRegisteredUser} GEL. Please proceed to enter your details.");
+            }
+ 
+            var result = new CurrencyExchangeResultViewModel()
+            {
+                CurrencyFrom = currencyFrom,
+                CurrencyTo = currencyTo,
+                Amount = amount
+            };
+
+            var exchangeModel = new CurrencyExchange()
+            {
+                CurrencyFromId = currencyFrom.Id,
+                CurrencyToId = currencyTo.Id,
+                Amount = amount
+            };
+
+            await _dbContext.CurrencyExchange.AddAsync(exchangeModel);
+            await _dbContext.SaveChangesAsync();
+
+            return result;
+        }
+
         public async Task<IEnumerable<Currency>> GetAll()
         {
             return await _dbContext.Currency.ToListAsync();
@@ -74,13 +115,13 @@ namespace CurrencyExchangeApp.Repositories
             if (IsCurrencyGEL(currencyFrom) && !IsCurrencyGEL(currencyTo))
             {
                 var currencyToRate = _dbContext.CurrencyRate.Where(x => x.CurrencyId == currencyTo.Id).First();
-                rate = currencyToRate.BuyRate;
+                rate = currencyToRate.SoldRate;
             }
 
             if (!IsCurrencyGEL(currencyFrom) && IsCurrencyGEL(currencyTo)) 
             {
                 var currencyFromRate = _dbContext.CurrencyRate.Where(x => x.CurrencyId == currencyFrom.Id).First();
-                rate = currencyFromRate.SoldRate;
+                rate = currencyFromRate.BuyRate;
             }
 
             if (!IsCurrencyGEL(currencyFrom) && !IsCurrencyGEL(currencyTo)) 
@@ -96,5 +137,26 @@ namespace CurrencyExchangeApp.Repositories
         }
 
         private bool IsCurrencyGEL(Currency currency) => currency.Id == 1;
+
+        private decimal ConvertCurrency(Currency currencyFrom, Currency currencyTo, decimal rate, decimal currencyAmount)
+        {
+            decimal amount = 0.0m;
+            if (IsCurrencyGEL(currencyFrom) && !IsCurrencyGEL(currencyTo))
+            {
+                amount = decimal.Round(currencyAmount / rate, 2, MidpointRounding.AwayFromZero);
+            }
+
+            if (!IsCurrencyGEL(currencyFrom) && IsCurrencyGEL(currencyTo))
+            {
+                amount = currencyAmount * rate;
+            }
+
+            if (!IsCurrencyGEL(currencyFrom) && !IsCurrencyGEL(currencyTo))
+            {
+                amount = currencyAmount * rate;
+            }
+
+            return amount;
+        }
     }
 }
