@@ -46,16 +46,10 @@ namespace CurrencyExchangeApp.Repositories
 
         public async Task<CurrencyExchangeResultViewModel> ExchangeCurrency(CurrencyExchangeViewModel currencyExchangeViewModel)
         {
-            await ValidateCurrency(currencyExchangeViewModel.CurrencyFromId, nameof(currencyExchangeViewModel.CurrencyFromId));
-            await ValidateCurrency(currencyExchangeViewModel.CurrencyToId, nameof(currencyExchangeViewModel.CurrencyToId));
+            await ValidateCurrencyCouple(currencyExchangeViewModel.CurrencyFromId, currencyExchangeViewModel.CurrencyToId);
 
-            if (currencyExchangeViewModel.CurrencyFromId == currencyExchangeViewModel.CurrencyToId)
-            {
-                throw new Exception("You can't convert two same currencies!");
-            }
-
-            var currencyFrom = _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyFromId).First();
-            var currencyTo = _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyToId).First();
+            var currencyFrom = await _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyFromId).FirstAsync();
+            var currencyTo = await _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyToId).FirstAsync();
 
             Account? account = GetAccount();
             var currencyFromInGel = ConvertCurrencyToGel(currencyFrom, currencyExchangeViewModel.Amount);
@@ -87,18 +81,12 @@ namespace CurrencyExchangeApp.Repositories
 
         public async Task<CurrencyRateResultViewModel> GetCurrencyRate(CurrencyRateViewModel currencyRateViewModel)
         {
-            await ValidateCurrency(currencyRateViewModel.CurrencyFromId, nameof(currencyRateViewModel.CurrencyFromId));
-            await ValidateCurrency(currencyRateViewModel.CurrencyToId, nameof(currencyRateViewModel.CurrencyToId));
-
-            if (currencyRateViewModel.CurrencyToId == currencyRateViewModel.CurrencyFromId)
-            {
-                throw new Exception("You can't convert two same currencies!");
-            }
+            await ValidateCurrencyCouple(currencyRateViewModel.CurrencyFromId, currencyRateViewModel.CurrencyToId);
 
             decimal rate = await CurrencyRateBetweenTwoCurrencies(currencyRateViewModel.CurrencyFromId, currencyRateViewModel.CurrencyToId);
 
-            var currencyFrom = _dbContext.Currency.Where(x => x.Id == currencyRateViewModel.CurrencyFromId).First();
-            var currencyTo = _dbContext.Currency.Where(x => x.Id == currencyRateViewModel.CurrencyToId).First();
+            var currencyFrom = await _dbContext.Currency.Where(x => x.Id == currencyRateViewModel.CurrencyFromId).FirstAsync();
+            var currencyTo = await _dbContext.Currency.Where(x => x.Id == currencyRateViewModel.CurrencyToId).FirstAsync();
 
             var currencyRateResultModel = new CurrencyRateResultViewModel()
             {
@@ -205,7 +193,7 @@ namespace CurrencyExchangeApp.Repositories
                                                 .Select(x => x.Id)
                                                 .ToHashSet();
 
-            amount = await _dbContext.CurrencyExchange.Where(x => accountIdSet.Contains(x.AccountId) && x.TransactionDate <= DateTime.Now.AddDays(-1))
+            amount = await _dbContext.CurrencyExchange.Where(x => accountIdSet.Contains(x.AccountId) && x.TransactionDate >= DateTime.Now.AddDays(-1))
                                                 .Select(x => x.Amount)
                                                 .SumAsync();
             return amount;
@@ -238,6 +226,17 @@ namespace CurrencyExchangeApp.Repositories
             if (!currency)
             {
                 throw new Exception($"The field {fieldName} with value {currencyId} does not excists!");
+            }
+        }
+
+        private async Task ValidateCurrencyCouple(int currencyFromId, int currencyToId) 
+        {
+            await ValidateCurrency(currencyFromId, nameof(currencyFromId));
+            await ValidateCurrency(currencyToId, nameof(currencyToId));
+
+            if (currencyToId == currencyFromId)
+            {
+                throw new Exception("You can't convert two same currencies!");
             }
         }
 
