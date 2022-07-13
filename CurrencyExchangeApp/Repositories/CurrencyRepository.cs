@@ -46,6 +46,14 @@ namespace CurrencyExchangeApp.Repositories
 
         public async Task<CurrencyExchangeResultViewModel> ExchangeCurrency(CurrencyExchangeViewModel currencyExchangeViewModel)
         {
+            await ValidateCurrency(currencyExchangeViewModel.CurrencyFromId, nameof(currencyExchangeViewModel.CurrencyFromId));
+            await ValidateCurrency(currencyExchangeViewModel.CurrencyToId, nameof(currencyExchangeViewModel.CurrencyToId));
+
+            if (currencyExchangeViewModel.CurrencyFromId == currencyExchangeViewModel.CurrencyToId)
+            {
+                throw new Exception("You can't convert two same currencies!");
+            }
+
             var currencyFrom = _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyFromId).First();
             var currencyTo = _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyToId).First();
 
@@ -82,49 +90,29 @@ namespace CurrencyExchangeApp.Repositories
             await ValidateCurrency(currencyRateViewModel.CurrencyFromId, nameof(currencyRateViewModel.CurrencyFromId));
             await ValidateCurrency(currencyRateViewModel.CurrencyToId, nameof(currencyRateViewModel.CurrencyToId));
 
-            if (currencyRateViewModel.CurrencyFromId == currencyRateViewModel.CurrencyToId)
+            if (currencyRateViewModel.CurrencyToId == currencyRateViewModel.CurrencyFromId)
             {
                 throw new Exception("You can't convert two same currencies!");
             }
 
+            decimal rate = await CurrencyRateBetweenTwoCurrencies(currencyRateViewModel.CurrencyFromId, currencyRateViewModel.CurrencyToId);
+
             var currencyFrom = _dbContext.Currency.Where(x => x.Id == currencyRateViewModel.CurrencyFromId).First();
             var currencyTo = _dbContext.Currency.Where(x => x.Id == currencyRateViewModel.CurrencyToId).First();
-
-            decimal rate = 0.0m;
 
             var currencyRateResultModel = new CurrencyRateResultViewModel()
             {
                 CurrencyFrom = currencyFrom,
                 CurrencyTo = currencyTo,
+                Rate = rate
             };
-
-            if (IsCurrencyGEL(currencyFrom) && !IsCurrencyGEL(currencyTo))
-            {
-                var currencyToRate = _dbContext.CurrencyRate.Where(x => x.CurrencyId == currencyTo.Id).First();
-                rate = currencyToRate.SoldRate;
-            }
-
-            if (!IsCurrencyGEL(currencyFrom) && IsCurrencyGEL(currencyTo))
-            {
-                var currencyFromRate = _dbContext.CurrencyRate.Where(x => x.CurrencyId == currencyFrom.Id).First();
-                rate = currencyFromRate.BuyRate;
-            }
-
-            if (!IsCurrencyGEL(currencyFrom) && !IsCurrencyGEL(currencyTo))
-            {
-                var currencyFromRate = _dbContext.CurrencyRate.Where(x => x.CurrencyId == currencyFrom.Id).First();
-                var currencyToRate = _dbContext.CurrencyRate.Where(x => x.CurrencyId == currencyTo.Id).First();
-                rate = decimal.Round(currencyFromRate.BuyRate / currencyToRate.SoldRate, 2, MidpointRounding.AwayFromZero);
-            }
-
-            currencyRateResultModel.Rate = rate;
 
             return currencyRateResultModel;
         }
 
 
         private bool IsCurrencyGEL(Currency currency) => currency.Code == "GEL";
-
+        
         private decimal ConvertCurrencyToGel(Currency currency, decimal amount)
         {
             decimal amountInGel = 0.0m;
@@ -146,6 +134,35 @@ namespace CurrencyExchangeApp.Repositories
             amountInGel = amount * currencyRate.BuyRate;
 
             return amountInGel;
+        }
+
+        private async Task<decimal> CurrencyRateBetweenTwoCurrencies(int currencyFromId, int currencyToId)
+        {
+            decimal rate = 0.0m;
+
+            var currencyFrom = _dbContext.Currency.Where(x => x.Id == currencyFromId).First();
+            var currencyTo = _dbContext.Currency.Where(x => x.Id == currencyToId).First();
+
+            if (IsCurrencyGEL(currencyFrom) && !IsCurrencyGEL(currencyTo))
+            {
+                var currencyToRate = await _dbContext.CurrencyRate.Where(x => x.CurrencyId == currencyTo.Id).FirstAsync();
+                rate = currencyToRate.SoldRate;
+            }
+
+            if (!IsCurrencyGEL(currencyFrom) && IsCurrencyGEL(currencyTo))
+            {
+                var currencyFromRate = await _dbContext.CurrencyRate.Where(x => x.CurrencyId == currencyFrom.Id).FirstAsync();
+                rate = currencyFromRate.BuyRate;
+            }
+
+            if (!IsCurrencyGEL(currencyFrom) && !IsCurrencyGEL(currencyTo))
+            {
+                var currencyFromRate = await _dbContext.CurrencyRate.Where(x => x.CurrencyId == currencyFrom.Id).FirstAsync();
+                var currencyToRate = await _dbContext.CurrencyRate.Where(x => x.CurrencyId == currencyTo.Id).FirstAsync();
+                rate = decimal.Round(currencyFromRate.BuyRate / currencyToRate.SoldRate, 2, MidpointRounding.AwayFromZero);
+            }
+
+            return rate;
         }
 
         private async Task<decimal> ConvertCurrency(Currency currencyFrom, Currency currencyTo, decimal currencyAmount)
