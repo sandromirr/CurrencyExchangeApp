@@ -7,7 +7,7 @@ namespace CurrencyExchangeApp.Repositories
     {
         Task<IEnumerable<Currency>> GetAll();
         Task Create(CreateCurrencyViewModel currency);
-        CurrencyRateResultViewModel GetCurrencyRate(CurrencyRateViewModel currencyRateViewModel);
+        Task<CurrencyRateResultViewModel> GetCurrencyRate(CurrencyRateViewModel currencyRateViewModel);
         Task<CurrencyExchangeResultViewModel> ExchangeCurrency(CurrencyExchangeViewModel currencyExchangeViewModel);
     }
 }

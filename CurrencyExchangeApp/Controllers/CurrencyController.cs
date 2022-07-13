@@ -44,11 +44,11 @@ namespace CurrencyExchangeApp.Controllers
         }
 
         [HttpPost("Rate", Name = nameof(CurrencyRate))]
-        public ActionResult CurrencyRate(CurrencyRateViewModel currencyRateViewModel)
+        public async Task<ActionResult> CurrencyRate(CurrencyRateViewModel currencyRateViewModel)
         {
             try
             {
-                var result = _currencyRepository.GetCurrencyRate(currencyRateViewModel);
+                var result = await _currencyRepository.GetCurrencyRate(currencyRateViewModel);
                 return Ok(result);
             }
             catch (Exception ex)

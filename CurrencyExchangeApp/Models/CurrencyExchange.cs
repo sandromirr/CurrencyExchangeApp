@@ -7,5 +7,6 @@
         public int CurrencyFromId { get; set; }
         public int CurrencyToId { get; set; }
         public decimal Amount { get; set; }
+        public DateTime TransactionDate { get; set; }
     }
 }

@@ -41,13 +41,20 @@ create table Account
 	[RecommenderNumber] nvarchar(13) not null
 )
 
+select * from Account
+
 insert into Account(PersonalNumber, [Name], [Surname], [RecommenderNumber]) values
 ('001',N'Sandro','Mirianashvili','002')
+
+drop table CurrencyExchange
 
 create table CurrencyExchange(
 	Id int primary key identity(1,1),
 	AccountId int,
-	CurrencyFrom int not null,
-	CurrencyTo int not null,
-	Amount decimal(7,2) not null
+	CurrencyFromId int not null,
+	CurrencyToId int not null,
+	Amount decimal(7,2) not null,
+	TransactionDate datetime not null
 )
+
+select * from CurrencyExchange
