@@ -32,6 +32,7 @@ namespace CurrencyExchangeApp
 
             builder.Services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 
+            builder.Services.AddCors();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -47,6 +48,12 @@ namespace CurrencyExchangeApp
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors(x => x
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .SetIsOriginAllowed(origin => true)
+               .AllowCredentials());
 
             app.UseAuthorization();
 

@@ -3,6 +3,7 @@ using CurrencyExchangeApp.Models;
 using CurrencyExchangeApp.Database;
 using CurrencyExchangeApp.Models.ViewModels;
 using CurrencyExchangeApp.Extensions;
+using CurrencyExchangeApp.Models.Exceptions;
 
 namespace CurrencyExchangeApp.Repositories
 {
@@ -206,7 +207,8 @@ namespace CurrencyExchangeApp.Repositories
 
             if (currencyFromInGel > MaxCurrencyExchangeAmountUnRegisteredAccount && account == null)
             {
-                throw new Exception($"Exchange limit exceeded {MaxCurrencyExchangeAmountUnRegisteredAccount} GEL. Please proceed to enter your account details.");
+                string messageText = $"Exchange limit exceeded {MaxCurrencyExchangeAmountUnRegisteredAccount} GEL. Please proceed to enter your account details.";
+                throw new CurrencyExchangeException(messageText, CurrencyExhangeExceptionEnum.AnnonymousExchangeAmountExceeded);
             }
 
             if (account != null)
@@ -236,7 +238,7 @@ namespace CurrencyExchangeApp.Repositories
 
             if (currencyToId == currencyFromId)
             {
-                throw new Exception("You can't convert two same currencies!");
+                throw new CurrencyExchangeException("You can't convert two same currencies!", CurrencyExhangeExceptionEnum.CanNotConvertSameCurrencies);
             }
         }
 

@@ -57,4 +57,6 @@ create table CurrencyExchange(
 	TransactionDate datetime not null
 )
 
-select * from CurrencyExchange
+
+select * from CurrencyExchange order by TransactionDate desc
+select * from Account order by Id desc

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CurrencyExchangeApp.Repositories;
 using CurrencyExchangeApp.Models.ViewModels;
+using CurrencyExchangeApp.Models.Exceptions;
 
 namespace CurrencyExchangeApp.Controllers
 {

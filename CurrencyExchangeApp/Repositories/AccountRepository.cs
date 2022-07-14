@@ -4,6 +4,7 @@ using CurrencyExchangeApp.Models;
 using CurrencyExchangeApp.Models.ViewModels;
 using CurrencyExchangeApp.Extensions;
 using Microsoft.Extensions.Configuration;
+using CurrencyExchangeApp.Models.Exceptions;
 
 namespace CurrencyExchangeApp.Repositories
 {
@@ -35,7 +36,21 @@ namespace CurrencyExchangeApp.Repositories
                 PersonalNumber = createAccountViewModel.PersonalNumber,
                 RecommenderNumber = createAccountViewModel.RecommenderNumber
             };
-            
+
+            var accontExists = _dbContext.Account.Where(x => x.PersonalNumber == createAccountViewModel.PersonalNumber).Any();
+
+            if (accontExists) 
+            {
+                throw new CurrencyExchangeException($"Account with personal number {account.PersonalNumber} already created account", CurrencyExhangeExceptionEnum.AccountExists);
+            }
+
+            var recommenderAccount = _dbContext.Account.Where(x => x.PersonalNumber == account.RecommenderNumber).Any();
+
+            if (!recommenderAccount && account.PersonalNumber != account.RecommenderNumber)
+            {
+                throw new CurrencyExchangeException($"There is not recommender account", CurrencyExhangeExceptionEnum.NotFoundRecomderAccount);
+            }
+
             await _dbContext.Account.AddAsync(account);
             await _dbContext.SaveChangesAsync();
 

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CurrencyExchangeApp.Repositories;
 using CurrencyExchangeApp.Models.ViewModels;
+using CurrencyExchangeApp.Models;
+using CurrencyExchangeApp.Models.Exceptions;
 
 namespace CurrencyExchangeApp.Controllers
 {
@@ -65,7 +67,17 @@ namespace CurrencyExchangeApp.Controllers
                 var result = await _currencyRepository.ExchangeCurrency(currencyExchangeViewModel);
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch (CurrencyExchangeException ex) 
+            {
+                var currencyExchangeError = new CurrencyExchangeError()
+                {
+                    Message = ex.Message,
+                    VisibleAccount = (ex.currencyExhangeExceptionEnum == CurrencyExhangeExceptionEnum.AnnonymousExchangeAmountExceeded || ex.currencyExhangeExceptionEnum == CurrencyExhangeExceptionEnum.AnnonymousExchangeAmountExceeded)
+                };
+                
+                return StatusCode(StatusCodes.Status500InternalServerError, currencyExchangeError);
+            }
+            catch (Exception ex) // todo exception to -> currenct exchange exception
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
