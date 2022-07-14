@@ -57,6 +57,8 @@ create table CurrencyExchange(
 	TransactionDate datetime not null
 )
 
+truncate table CurrencyExchange
+truncate table Account
 
 select * from CurrencyExchange order by TransactionDate desc
 select * from Account order by Id desc

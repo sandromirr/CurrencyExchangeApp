@@ -52,7 +52,22 @@ namespace CurrencyExchangeApp.Repositories
             var currencyFrom = await _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyFromId).FirstAsync();
             var currencyTo = await _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyToId).FirstAsync();
 
-            Account? account = GetAccount();
+            //Account? account = GetAccount();
+
+            Account? account = currencyExchangeViewModel.Account;
+            if (account != null) {
+                var accountExists = _dbContext.Account.Where(x => 
+                                            x.PersonalNumber == account.PersonalNumber && 
+                                            x.Name == account.Name && 
+                                            x.Surname == account.Surname && 
+                                            x.RecommenderNumber == account.RecommenderNumber).Any();
+                if (!accountExists) 
+                {
+                    await _dbContext.Account.AddAsync(account);
+                    await _dbContext.SaveChangesAsync();
+                }
+
+            }
             var currencyFromInGel = ConvertCurrencyToGel(currencyFrom, currencyExchangeViewModel.Amount);
             await ValidateCurrencyExchange(account, currencyFromInGel);
 
@@ -105,6 +120,12 @@ namespace CurrencyExchangeApp.Repositories
         private decimal ConvertCurrencyToGel(Currency currency, decimal amount)
         {
             decimal amountInGel = 0.0m;
+
+            if (amount < 0) 
+            {
+                string messageText = $"Exchange Currency Amount must be positive.";
+                throw new CurrencyExchangeException(messageText, CurrencyExhangeExceptionEnum.CurrencyExchangeBalanceIsNegative);
+            }
 
             if (IsCurrencyGEL(currency))
             {
