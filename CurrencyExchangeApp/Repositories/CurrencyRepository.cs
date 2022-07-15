@@ -2,7 +2,6 @@
 using CurrencyExchangeApp.Models;
 using CurrencyExchangeApp.Database;
 using CurrencyExchangeApp.Models.ViewModels;
-using CurrencyExchangeApp.Extensions;
 using CurrencyExchangeApp.Models.Exceptions;
 
 namespace CurrencyExchangeApp.Repositories
@@ -10,13 +9,11 @@ namespace CurrencyExchangeApp.Repositories
     public class CurrencyRepository : ICurrencyRepository
     {
         private readonly CurrencyExchangeDbContext _dbContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
 
-        public CurrencyRepository(CurrencyExchangeDbContext _dbContext, IHttpContextAccessor _httpContextAccessor, IConfiguration _configuration)
+        public CurrencyRepository(CurrencyExchangeDbContext _dbContext,IConfiguration _configuration)
         {
             this._dbContext = _dbContext;
-            this._httpContextAccessor = _httpContextAccessor;
             this._configuration = _configuration;
         }
 
@@ -51,8 +48,6 @@ namespace CurrencyExchangeApp.Repositories
 
             var currencyFrom = await _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyFromId).FirstAsync();
             var currencyTo = await _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyToId).FirstAsync();
-
-            //Account? account = GetAccount();
 
             Account? account = currencyExchangeViewModel.Account;
             if (account != null) {
@@ -261,14 +256,6 @@ namespace CurrencyExchangeApp.Repositories
             {
                 throw new CurrencyExchangeException("You can't convert two same currencies!", CurrencyExhangeExceptionEnum.CanNotConvertSameCurrencies);
             }
-        }
-
-        private Account? GetAccount()
-        {
-            string sessionName = _configuration.GetValue<string>("Session:Account");
-            Account? account = _httpContextAccessor?.HttpContext?.Session.Get<Account>(sessionName);
-
-            return account;
         }
     }
 }

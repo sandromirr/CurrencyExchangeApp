@@ -2,7 +2,6 @@
 using CurrencyExchangeApp.Database;
 using CurrencyExchangeApp.Models;
 using CurrencyExchangeApp.Models.ViewModels;
-using CurrencyExchangeApp.Extensions;
 using Microsoft.Extensions.Configuration;
 using CurrencyExchangeApp.Models.Exceptions;
 
@@ -11,13 +10,11 @@ namespace CurrencyExchangeApp.Repositories
     public class AccountRepository : IAccountRepository
     {
         private readonly CurrencyExchangeDbContext _dbContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
         
-        public AccountRepository(CurrencyExchangeDbContext _dbContext, IHttpContextAccessor _httpContextAccessor, IConfiguration _configuration)
+        public AccountRepository(CurrencyExchangeDbContext _dbContext, IConfiguration _configuration)
         {
             this._dbContext = _dbContext;
-            this._httpContextAccessor = _httpContextAccessor;
             this._configuration = _configuration;
         }
 
@@ -53,9 +50,6 @@ namespace CurrencyExchangeApp.Repositories
 
             await _dbContext.Account.AddAsync(account);
             await _dbContext.SaveChangesAsync();
-
-            string sessionName = _configuration.GetValue<string>("Session:Account");
-            _httpContextAccessor?.HttpContext?.Session.Set<Account>(sessionName, account);
         }
 
         public async Task<Account?> GetAccountByPersonalNumber(string personalNumber)
@@ -68,9 +62,6 @@ namespace CurrencyExchangeApp.Repositories
             }
 
             var account = await _dbContext.Account.Where(x => x.PersonalNumber == personalNumber).FirstOrDefaultAsync();
-
-            string sessionName = _configuration.GetValue<string>("Session:Account");
-            _httpContextAccessor?.HttpContext?.Session.Set<Account>(sessionName, account);
 
             return account;
         }

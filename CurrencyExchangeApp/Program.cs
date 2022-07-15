@@ -20,19 +20,9 @@ namespace CurrencyExchangeApp
             builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
-            //Add sessions
-            builder.Services.AddDistributedMemoryCache();
-
-            builder.Services.AddSession(options =>
-            {
-                options.IdleTimeout = TimeSpan.FromMinutes(30);
-                options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
-            });
-
-            builder.Services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
-
+            
             builder.Services.AddCors();
+            
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -56,8 +46,6 @@ namespace CurrencyExchangeApp
                .AllowCredentials());
 
             app.UseAuthorization();
-
-            app.UseSession();
 
             app.MapControllers();
 
