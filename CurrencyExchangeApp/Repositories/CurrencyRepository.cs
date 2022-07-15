@@ -9,12 +9,10 @@ namespace CurrencyExchangeApp.Repositories
     public class CurrencyRepository : ICurrencyRepository
     {
         private readonly CurrencyExchangeDbContext _dbContext;
-        private readonly IConfiguration _configuration;
-
-        public CurrencyRepository(CurrencyExchangeDbContext _dbContext,IConfiguration _configuration)
+        
+        public CurrencyRepository(CurrencyExchangeDbContext _dbContext)
         {
             this._dbContext = _dbContext;
-            this._configuration = _configuration;
         }
 
         public async Task<IEnumerable<Currency>> GetAll()
@@ -35,7 +33,7 @@ namespace CurrencyExchangeApp.Repositories
 
             if (currenctExcists)
             {
-                throw new Exception($"Currency code = {currency.Code} Already excists");
+                throw new CurrencyExchangeException($"Currency code = {currency.Code} Already excists", CurrencyExhangeExceptionEnum.CurrencyExists);
             }
 
             await _dbContext.Currency.AddAsync(currency);
@@ -61,7 +59,6 @@ namespace CurrencyExchangeApp.Repositories
                     await _dbContext.Account.AddAsync(account);
                     await _dbContext.SaveChangesAsync();
                 }
-
             }
             var currencyFromInGel = ConvertCurrencyToGel(currencyFrom, currencyExchangeViewModel.Amount);
             await ValidateCurrencyExchange(account, currencyFromInGel);
@@ -131,7 +128,8 @@ namespace CurrencyExchangeApp.Repositories
 
             if (!currencyRateList.Any())
             {
-                throw new Exception($"Currency code {currency.Code} does not excists!");
+                string messageText = $"Currency code {currency.Code} does not excists!";
+                throw new CurrencyExchangeException(messageText, CurrencyExhangeExceptionEnum.CurrencyDoesNotExists);
             }
 
             var currencyRate = currencyRateList.First();
@@ -233,7 +231,8 @@ namespace CurrencyExchangeApp.Repositories
 
                 if (accountDailyExchangeAmount + currencyFromInGel > MaxCurrencyExchangeDailyLimit)
                 {
-                    throw new Exception($"Exchange daily limit exceeded {MaxCurrencyExchangeDailyLimit} GEL.");
+                    string messageText = $"Exchange daily limit exceeded {MaxCurrencyExchangeDailyLimit} GEL";
+                    throw new CurrencyExchangeException(messageText, CurrencyExhangeExceptionEnum.CurrencyExchangeDailyLimitExceeded);
                 }
             }
         }
@@ -243,7 +242,8 @@ namespace CurrencyExchangeApp.Repositories
             var currency = await _dbContext.Currency.Where(x => x.Id == currencyId).AnyAsync();
             if (!currency)
             {
-                throw new Exception($"The field {fieldName} with value {currencyId} does not excists!");
+                string messageText = $"The field {fieldName} with value {currencyId} does not excists!";
+                throw new CurrencyExchangeException(messageText, CurrencyExhangeExceptionEnum.InvalidFieldValue);
             }
         }
 

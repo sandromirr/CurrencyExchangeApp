@@ -2,7 +2,6 @@
 using CurrencyExchangeApp.Database;
 using CurrencyExchangeApp.Models;
 using CurrencyExchangeApp.Models.ViewModels;
-using Microsoft.Extensions.Configuration;
 using CurrencyExchangeApp.Models.Exceptions;
 
 namespace CurrencyExchangeApp.Repositories
@@ -10,12 +9,10 @@ namespace CurrencyExchangeApp.Repositories
     public class AccountRepository : IAccountRepository
     {
         private readonly CurrencyExchangeDbContext _dbContext;
-        private readonly IConfiguration _configuration;
         
-        public AccountRepository(CurrencyExchangeDbContext _dbContext, IConfiguration _configuration)
+        public AccountRepository(CurrencyExchangeDbContext _dbContext)
         {
             this._dbContext = _dbContext;
-            this._configuration = _configuration;
         }
 
         public Task<bool> AccountExcists(string personalNumber)
@@ -54,11 +51,11 @@ namespace CurrencyExchangeApp.Repositories
 
         public async Task<Account?> GetAccountByPersonalNumber(string personalNumber)
         {
-            var accountExcists = await _dbContext.Account.Where(x => x.PersonalNumber == personalNumber).AnyAsync();
+            var accountExists = await _dbContext.Account.Where(x => x.PersonalNumber == personalNumber).AnyAsync();
 
-            if (!accountExcists)
+            if (!accountExists)
             {
-                throw new Exception("Account does not excists");
+                throw new CurrencyExchangeException($"Account does not exists", CurrencyExhangeExceptionEnum.AccountDoesNotExists);
             }
 
             var account = await _dbContext.Account.Where(x => x.PersonalNumber == personalNumber).FirstOrDefaultAsync();

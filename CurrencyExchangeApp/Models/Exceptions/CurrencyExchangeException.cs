@@ -19,8 +19,12 @@
         CurrencyDoesNotExists = 3,
         CanNotConvertSameCurrencies = 4,
         CurrencyExchangeBalanceIsNegative = 5,
+        CurrencyExists = 6,
 
-        AccountExists = 6,
-        NotFoundRecomderAccount = 7,
+        AccountExists = 7,
+        NotFoundRecomderAccount = 8,
+        AccountDoesNotExists = 9,
+
+        InvalidFieldValue = 10,
     }
 }
