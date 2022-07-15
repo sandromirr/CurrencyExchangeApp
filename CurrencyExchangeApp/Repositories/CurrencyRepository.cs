@@ -49,11 +49,8 @@ namespace CurrencyExchangeApp.Repositories
 
             Account? account = currencyExchangeViewModel.Account;
             if (account != null) {
-                var accountExists = _dbContext.Account.Where(x => 
-                                            x.PersonalNumber == account.PersonalNumber && 
-                                            x.Name == account.Name && 
-                                            x.Surname == account.Surname && 
-                                            x.RecommenderNumber == account.RecommenderNumber).Any();
+                var accountExists = _dbContext.Account.Where(x => x.PersonalNumber == account.PersonalNumber).Any();
+                
                 if (!accountExists) 
                 {
                     await _dbContext.Account.AddAsync(account);

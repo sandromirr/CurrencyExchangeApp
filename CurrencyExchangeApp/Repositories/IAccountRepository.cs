@@ -9,5 +9,6 @@ namespace CurrencyExchangeApp.Repositories
         Task Create(CreateAccountViewModel account);
         Task<bool> AccountExcists(string personalNumber);
         Task<Account?> GetAccountByPersonalNumber(string personalNumber);
+        Task<List<AccountReport>> GetAccountReports(AccountReportFilter accountReportFilter);
     }
 }
