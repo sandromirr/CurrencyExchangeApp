@@ -16,8 +16,8 @@ namespace CurrencyExchangeApp.Controllers
             _accountRepository = accountRepository;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetReports([FromQuery] AccountReportFilter accountReportFilter)
+        [HttpPost]
+        public async Task<IActionResult> GetReports([FromBody] AccountReportFilter accountReportFilter)
         {
             try
             {
