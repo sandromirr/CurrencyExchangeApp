@@ -47,7 +47,6 @@ namespace CurrencyExchangeApp.Repositories
             }
 
             await _dbContext.Account.AddAsync(account);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<Account?> GetAccountByPersonalNumber(string personalNumber)

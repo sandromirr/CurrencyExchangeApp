@@ -37,7 +37,6 @@ namespace CurrencyExchangeApp.Repositories
             }
 
             await _dbContext.Currency.AddAsync(currency);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<CurrencyExchangeResultViewModel> ExchangeCurrency(CurrencyExchangeViewModel currencyExchangeViewModel)
@@ -79,7 +78,6 @@ namespace CurrencyExchangeApp.Repositories
             };
 
             await _dbContext.CurrencyExchange.AddAsync(exchangeModel);
-            await _dbContext.SaveChangesAsync();
 
             return result;
         }

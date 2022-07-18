@@ -1,7 +1,6 @@
-﻿using CurrencyExchangeApp.Models;
+﻿using CurrencyExchangeApp.Database;
+using CurrencyExchangeApp.Models;
 using CurrencyExchangeApp.Models.Exceptions;
-using CurrencyExchangeApp.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CurrencyExchangeApp.Controllers
@@ -10,10 +9,11 @@ namespace CurrencyExchangeApp.Controllers
     [ApiController]
     public class ReportController : ControllerBase
     {
-        private readonly IAccountRepository _accountRepository;
-        public ReportController(IAccountRepository accountRepository)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public ReportController(IUnitOfWork _unitOfWork)
         {
-            _accountRepository = accountRepository;
+            this._unitOfWork = _unitOfWork;
         }
 
         [HttpPost]
@@ -21,14 +21,14 @@ namespace CurrencyExchangeApp.Controllers
         {
             try
             {
-                var reports = await _accountRepository.GetAccountReports(accountReportFilter);
+                var reports = await _unitOfWork.Account.GetAccountReports(accountReportFilter);
                 return Ok(reports);
             }
             catch (CurrencyExchangeException ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
-            catch (Exception ex) // todo exception to -> currenct exchange exception
+            catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }

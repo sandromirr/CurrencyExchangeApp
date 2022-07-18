@@ -12,6 +12,9 @@ namespace CurrencyExchangeApp.Database
         public DbSet<Account> Account { get; set; }
         public DbSet<CurrencyExchange> CurrencyExchange { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) { }
+        protected override void OnModelCreating(ModelBuilder modelBuilder) 
+        {
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

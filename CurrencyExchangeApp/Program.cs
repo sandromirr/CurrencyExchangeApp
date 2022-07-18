@@ -16,13 +16,12 @@ namespace CurrencyExchangeApp
             builder.Services.AddDbContext<CurrencyExchangeDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Local")));
 
-            // Add Repositories
-            builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
-            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            
             builder.Services.AddCors();
-            
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

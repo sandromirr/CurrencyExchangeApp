@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using CurrencyExchangeApp.Repositories;
 using CurrencyExchangeApp.Models.ViewModels;
 using CurrencyExchangeApp.Models;
 using CurrencyExchangeApp.Models.Exceptions;
+using CurrencyExchangeApp.Database;
 
 namespace CurrencyExchangeApp.Controllers
 {
@@ -10,11 +10,11 @@ namespace CurrencyExchangeApp.Controllers
     [ApiController]
     public class CurrencyController : ControllerBase
     {
-        private readonly ICurrencyRepository _currencyRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CurrencyController(ICurrencyRepository _currencyRepository)
+        public CurrencyController(IUnitOfWork _unitOfWork)
         {
-            this._currencyRepository = _currencyRepository;
+            this._unitOfWork = _unitOfWork;
         }
 
         [HttpGet]
@@ -22,12 +22,11 @@ namespace CurrencyExchangeApp.Controllers
         {
             try
             {
-                return Ok(await _currencyRepository.GetAll());
+                return Ok(await _unitOfWork.Currency.GetAll());
             }
             catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error retrieving data from the database");
+                return StatusCode(StatusCodes.Status500InternalServerError,"Error retrieving data from the database");
             }
         }
 
@@ -36,7 +35,9 @@ namespace CurrencyExchangeApp.Controllers
         {
             try
             {
-                await _currencyRepository.Create(createCurrencyViewModel);
+                await _unitOfWork.Currency.Create(createCurrencyViewModel);
+                await _unitOfWork.CompleteAsync();
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -50,7 +51,7 @@ namespace CurrencyExchangeApp.Controllers
         {
             try
             {
-                var result = await _currencyRepository.GetCurrencyRate(currencyRateViewModel);
+                var result = await _unitOfWork.Currency.GetCurrencyRate(currencyRateViewModel);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -64,7 +65,9 @@ namespace CurrencyExchangeApp.Controllers
         {
             try
             {
-                var result = await _currencyRepository.ExchangeCurrency(currencyExchangeViewModel);
+                var result = await _unitOfWork.Currency.ExchangeCurrency(currencyExchangeViewModel);
+                await _unitOfWork.CompleteAsync();
+
                 return Ok(result);
             }
             catch (CurrencyExchangeException ex) 

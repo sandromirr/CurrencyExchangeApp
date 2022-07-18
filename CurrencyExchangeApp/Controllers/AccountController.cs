@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using CurrencyExchangeApp.Repositories;
 using CurrencyExchangeApp.Models.ViewModels;
-using CurrencyExchangeApp.Models.Exceptions;
+using CurrencyExchangeApp.Database;
 
 namespace CurrencyExchangeApp.Controllers
 {
@@ -9,11 +8,11 @@ namespace CurrencyExchangeApp.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly IAccountRepository _accountRepository;
-
-        public AccountController(IAccountRepository _accountRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        
+        public AccountController(IUnitOfWork _unitOfWork)
         {
-            this._accountRepository = _accountRepository;
+            this._unitOfWork = _unitOfWork;
         }
 
         [HttpGet]
@@ -21,7 +20,7 @@ namespace CurrencyExchangeApp.Controllers
         {
             try
             {
-                return Ok(await _accountRepository.GetAccounts());
+                return Ok(await _unitOfWork.Account.GetAccounts());
             }
             catch (Exception ex)
             {
@@ -34,7 +33,7 @@ namespace CurrencyExchangeApp.Controllers
         {
             try
             {
-                await _accountRepository.Create(createAccountViewModel);
+                await _unitOfWork.Account.Create(createAccountViewModel);
                 return NoContent();
             }
             catch (Exception ex)
@@ -48,7 +47,7 @@ namespace CurrencyExchangeApp.Controllers
         {
             try
             {
-                var account = await _accountRepository.GetAccountByPersonalNumber(personalNumber);
+                var account = await _unitOfWork.Account.GetAccountByPersonalNumber(personalNumber);
                 return Ok(account);
             }
             catch (Exception ex)
