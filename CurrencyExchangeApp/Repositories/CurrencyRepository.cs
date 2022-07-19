@@ -144,7 +144,7 @@ namespace CurrencyExchangeApp.Repositories
             if (IsCurrencyGEL(currencyFrom) && !IsCurrencyGEL(currencyTo))
             {
                 var currencyToRate = await _dbContext.CurrencyRate.Where(x => x.CurrencyId == currencyTo.Id).FirstAsync();
-                rate = currencyToRate.SoldRate;
+                rate = decimal.Round(1.0m / currencyToRate.SoldRate, 2, MidpointRounding.AwayFromZero);
             }
 
             if (!IsCurrencyGEL(currencyFrom) && IsCurrencyGEL(currencyTo))
@@ -165,8 +165,6 @@ namespace CurrencyExchangeApp.Repositories
 
         private async Task<decimal> ConvertCurrency(Currency currencyFrom, Currency currencyTo, decimal currencyAmount)
         {
-            decimal amount = 0.0m;
-
             var currenctRateModel = new CurrencyRateViewModel()
             {
                 CurrencyFromId = currencyFrom.Id,
@@ -177,22 +175,7 @@ namespace CurrencyExchangeApp.Repositories
 
             decimal rate = currencyRate.Rate;
 
-            if (IsCurrencyGEL(currencyFrom) && !IsCurrencyGEL(currencyTo))
-            {
-                amount = decimal.Round(currencyAmount / rate, 2, MidpointRounding.AwayFromZero);
-            }
-
-            if (!IsCurrencyGEL(currencyFrom) && IsCurrencyGEL(currencyTo))
-            {
-                amount = currencyAmount * rate;
-            }
-
-            if (!IsCurrencyGEL(currencyFrom) && !IsCurrencyGEL(currencyTo))
-            {
-                amount = currencyAmount * rate;
-            }
-
-            return amount;
+            return currencyAmount * rate;
         }
 
         private async Task<decimal> CalculateAccountDailyExchangeAmount(Account account)
@@ -237,7 +220,7 @@ namespace CurrencyExchangeApp.Repositories
             var currency = await _dbContext.Currency.Where(x => x.Id == currencyId).AnyAsync();
             if (!currency)
             {
-                string messageText = $"The field {fieldName} with value {currencyId} does not excists!";
+                string messageText = $"{fieldName} select currency!";
                 throw new CurrencyExchangeException(messageText, CurrencyExhangeExceptionEnum.InvalidFieldValue);
             }
         }
