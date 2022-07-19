@@ -80,7 +80,7 @@ namespace CurrencyExchangeApp.Controllers
                 
                 return StatusCode(StatusCodes.Status500InternalServerError, currencyExchangeError);
             }
-            catch (Exception ex) // todo exception to -> currenct exchange exception
+            catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }

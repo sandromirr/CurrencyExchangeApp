@@ -47,15 +47,21 @@ namespace CurrencyExchangeApp.Repositories
             var currencyTo = await _dbContext.Currency.Where(x => x.Id == currencyExchangeViewModel.CurrencyToId).FirstAsync();
 
             Account? account = currencyExchangeViewModel.Account;
+            
             if (account != null) {
-                var accountExists = _dbContext.Account.Where(x => x.PersonalNumber == account.PersonalNumber).Any();
-                
-                if (!accountExists) 
+                var findAccount = _dbContext.Account.Where(x => x.PersonalNumber == account.PersonalNumber);
+
+                if (!findAccount.Any())
                 {
                     await _dbContext.Account.AddAsync(account);
                     await _dbContext.SaveChangesAsync();
                 }
+                else 
+                {
+                    account = await findAccount.FirstAsync();
+                }
             }
+
             var currencyFromInGel = ConvertCurrencyToGel(currencyFrom, currencyExchangeViewModel.Amount);
             await ValidateCurrencyExchange(account, currencyFromInGel);
 
