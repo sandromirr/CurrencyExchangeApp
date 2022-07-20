@@ -93,7 +93,7 @@ namespace CurrencyExchangeApp.Repositories
                 var list = transactions.ToList();
 
                 report.HirerchyConvertionCount = await transactions.CountAsync();
-                report.PersonalConvertionCount = await transactions.Where(x => x.Id == account.Id).CountAsync();
+                report.PersonalConvertionCount = await transactions.Where(x => x.AccountId == account.Id).CountAsync();
 
                 reports.Add(report);
             }
