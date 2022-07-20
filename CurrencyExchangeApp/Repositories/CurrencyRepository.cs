@@ -107,7 +107,26 @@ namespace CurrencyExchangeApp.Repositories
             return currencyRateResultModel;
         }
 
+        public async Task CreateCurrencyRate(CreateCurrencyRateviewModel createCurrencyRateViewModel)
+        {
+            var currencyList = _dbContext.Currency.Where(x => x.Id == createCurrencyRateViewModel.CurrencyId);
 
+            var contains = await currencyList.AnyAsync();
+
+            if (!contains)
+            {
+                throw new CurrencyExchangeException("Invalid Currency id", CurrencyExhangeExceptionEnum.CurrencyDoesNotExists);
+            }
+
+            var currencyRate = new CurrencyRate()
+            {
+                CurrencyId = createCurrencyRateViewModel.CurrencyId,
+                BuyRate = createCurrencyRateViewModel.BuyRate,
+                SoldRate = createCurrencyRateViewModel.SoldRate
+            };
+
+            await _dbContext.CurrencyRate.AddAsync(currencyRate);
+        }
         private bool IsCurrencyGEL(Currency currency) => currency.Code == "GEL";
         
         private decimal ConvertCurrencyToGel(Currency currency, decimal amount)

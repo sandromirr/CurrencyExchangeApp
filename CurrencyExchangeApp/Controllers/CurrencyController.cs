@@ -30,6 +30,21 @@ namespace CurrencyExchangeApp.Controllers
             }
         }
 
+        [HttpPost("CreateRate")]
+        public async Task<IActionResult> CreateRate([FromBody] CreateCurrencyRateviewModel createCurrencyRateViewModel)
+        {
+            try
+            {
+                await _unitOfWork.Currency.CreateCurrencyRate(createCurrencyRateViewModel);
+                await _unitOfWork.CompleteAsync();
+                return NoContent() ;
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> Create(CreateCurrencyViewModel createCurrencyViewModel)
         {
@@ -39,6 +54,10 @@ namespace CurrencyExchangeApp.Controllers
                 await _unitOfWork.CompleteAsync();
 
                 return NoContent();
+            }
+            catch (CurrencyExchangeException ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
             catch (Exception ex)
             {

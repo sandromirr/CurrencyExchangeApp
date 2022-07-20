@@ -85,7 +85,12 @@ namespace CurrencyExchangeApp.Repositories
                                                          .Select(x => x.Id)
                                                          .ToHashSet();
 
-                var transactions = _dbContext.CurrencyExchange.Where(x => hirerchyAccounts.Contains(x.Id) && x.TransactionDate >= accountReportFilter.From && x.TransactionDate <= accountReportFilter.To);
+                var transactions = _dbContext.CurrencyExchange.Where(x => 
+                                            hirerchyAccounts.Contains(x.AccountId) && 
+                                            x.TransactionDate >= accountReportFilter.From && 
+                                            x.TransactionDate <= accountReportFilter.To);
+
+                var list = transactions.ToList();
 
                 report.HirerchyConvertionCount = await transactions.CountAsync();
                 report.PersonalConvertionCount = await transactions.Where(x => x.Id == account.Id).CountAsync();

@@ -9,5 +9,6 @@ namespace CurrencyExchangeApp.Repositories
         Task Create(CreateCurrencyViewModel currency);
         Task<CurrencyRateResultViewModel> GetCurrencyRate(CurrencyRateViewModel currencyRateViewModel);
         Task<CurrencyExchangeResultViewModel> ExchangeCurrency(CurrencyExchangeViewModel currencyExchangeViewModel);
+        Task CreateCurrencyRate(CreateCurrencyRateviewModel createCurrencyRateViewModel);
     }
 }
