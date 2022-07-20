@@ -86,7 +86,6 @@ namespace CurrencyExchangeApp.Controllers
             {
                 var result = await _unitOfWork.Currency.ExchangeCurrency(currencyExchangeViewModel);
                 await _unitOfWork.CompleteAsync();
-
                 return Ok(result);
             }
             catch (CurrencyExchangeException ex) 

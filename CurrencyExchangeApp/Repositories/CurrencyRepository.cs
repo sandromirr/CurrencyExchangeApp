@@ -54,7 +54,6 @@ namespace CurrencyExchangeApp.Repositories
                 if (!findAccount.Any())
                 {
                     await _dbContext.Account.AddAsync(account);
-                    await _dbContext.SaveChangesAsync();
                 }
                 else 
                 {
